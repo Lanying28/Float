@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人生规划表 V6.2 | Life Planner (财务缓冲版)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg-color: #f0f2f5; --container-bg-color: #ffffff; --header-bg-color: #1e293b; --header-text-color: #ffffff;
+            --border-color: #e2e8f0; --text-color: #1e293b; --date-number-color: #64748b; --other-month-date-color: #cbd5e0;
+            --hover-bg-color: #f1f5f9; --today-bg-color: #e0f2fe; --birthday-bg-color: #fef9c3; --birthday-border-color: #facc15;
+            --reminder-color: #1d4ed8; --task-color: #059669; --contact-due-color: #be123c; --button-bg-color: #475569;
+            --button-hover-bg-color: #64748b; --wisdom-btn-bg: linear-gradient(45deg, #4338ca, #6d28d9);
+            --diet-color: #166534; --diet-bg-color: rgba(22, 163, 74, 0.1);
+            --primary-text: #333; --secondary-text: #555; --bg-color: #f8f9fa; --table-bg: #ffffff;
+            --header-bg: #f8f9fa; --shadow-color: rgba(0, 0, 0, 0.05); --accent-color: #007bff;
+            --level-5-bg: #ffe0e0; --level-5-text: #c0392b; --level-4-bg: #fff0db; --level-4-text: #e67e22;
+            --level-3-bg: #e0eaff; --level-3-text: #2980b9; --influence-strong-bg: #d4edda;
+            --influence-strong-text: #155724; --influence-normal-bg: #fff3cd; --influence-normal-text: #856404;
+            --influence-weak-bg: #f8d7da; --influence-weak-text: #721c24;
+            --annoyance-fund-color: #c2410c; /* New color for Annoyance Fund */
+        }
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: var(--primary-bg-color); color: var(--text-color); margin: 0; padding: 1.5rem; line-height: 1.6; }
+        .planner-container { width: 100%; max-width: 1400px; margin: 0 auto; background-color: var(--container-bg-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden; position: relative; }
+        .top-bar { padding: 1rem 1.5rem; background-color: #f8fafc; border-bottom: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: center; }
+        .controls-group { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+        .controls-group label { font-size: 0.9rem; font-weight: 500; }
+        .controls-group input, .controls-group select, .controls-group button { padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 0.9rem; }
+        .controls-group button { border: none; background-color: var(--button-bg-color); color: white; cursor: pointer; transition: background-color 0.2s; }
+        .controls-group button:hover { background-color: var(--button-hover-bg-color); }
+        #btn-save-hero, #add-past-friend-btn { background-color: #16a34a; }
+        #btn-save-hero:hover, #add-past-friend-btn:hover { background-color: #15803d; }
+        .hero-age-display { font-size: 0.9rem; font-weight: 500; color: var(--header-bg-color); background-color: var(--hover-bg-color); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); margin-left: 0.5rem; }
+        .wealth-system { text-align: right; }
+        .wealth-system .wealth-item { display: inline-block; margin-left: 1rem; }
+        .wealth-system label { font-size: 0.8rem; color: var(--date-number-color); display: block; }
+        .wealth-system input { width: 100px; border: none; border-bottom: 1px solid var(--border-color); border-radius: 0; padding: 0.25rem; font-size: 1rem; font-weight: 500; text-align: right; }
+        .wealth-system input:focus { outline: none; border-bottom-color: var(--header-bg-color); }
+        .wealth-system #net-worth { font-weight: bold; color: #059669; }
+        .wealth-system #annoyance-fund { font-weight: bold; color: var(--annoyance-fund-color); padding: 0.25rem; font-size: 1rem; display: inline-block; min-width: 50px; text-align: right; }
+        header { padding: 1.5rem 2rem; background: var(--header-bg-color); color: var(--header-text-color); text-align: center; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 2rem; font-weight: 500; }
+        header .nav-buttons button { width: 40px; height: 40px; padding: 0; font-size: 1.2rem; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;}
+        header .nav-buttons button:hover { background-color: rgba(255,255,255,0.2); }
+        main { padding: 1rem; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        thead th { font-weight: 500; padding: 1rem 0.5rem; text-align: center; color: var(--header-bg-color); border-bottom: 2px solid var(--border-color); }
+        tbody td { height: 160px; border: 1px solid var(--border-color); vertical-align: top; padding: 0; transition: background-color 0.2s; position: relative; }
+        tbody td.today { background-color: var(--today-bg-color); }
+        tbody td.birthday { background-color: var(--birthday-bg-color); border: 2px solid var(--birthday-border-color); }
+        tbody td:hover { background-color: var(--hover-bg-color); }
+        .cell-wrapper { display: flex; flex-direction: column; height: 100%; }
+        .cell-top { display: flex; justify-content: space-between; align-items: flex-start; padding: 0.5rem; flex-shrink: 0; }
+        .daily-wisdom { text-align: left; font-size: 0.7rem; color: #94a3b8; }
+        .daily-wisdom .gua-symbol { font-size: 1.2rem; line-height: 1; }
+        .date-header { text-align: right; }
+        .date-number { font-size: 0.9rem; font-weight: 500; color: var(--date-number-color); }
+        .other-month .date-number, .other-month .daily-wisdom { opacity: 0.5; }
+        .birthday-tag { font-size: 0.75rem; font-weight: bold; color: #b45309; display: block; }
+        .reminders { flex-shrink: 0; max-height: 78px; overflow-y: auto; font-size: 0.75rem; margin: 0 0.5rem; }
+        .notes { flex-grow: 1; padding: 0.5rem; font-size: 0.9rem; line-height: 1.5; overflow-y: auto; outline: none; white-space: pre-wrap; }
+        .reminders .reminder { display:flex; justify-content: space-between; align-items: center; padding: 2px 5px; border-radius: 4px; margin-top: 2px; }
+        .reminders .reminder-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        .reminder-friend { background-color: rgba(29, 78, 216, 0.1); color: var(--reminder-color); }
+        .reminder-task { background-color: rgba(5, 150, 105, 0.1); color: var(--task-color); }
+        .reminder-diet { background-color: var(--diet-bg-color); color: var(--diet-color); cursor: help; }
+        .delete-reminder-btn { cursor: pointer; margin-left: 8px; font-size: 10px; display: none; }
+        .reminders .reminder:hover .delete-reminder-btn { display: inline; }
+        .system-section { border-top: 1px solid var(--border-color); }
+        .accordion-toggle { width: 100%; background-color: #f8fafc; border: none; border-bottom: 1px solid var(--border-color); padding: 1rem 1.5rem; font-size: 1.1rem; font-weight: 500; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-toggle:hover { background-color: #f1f5f9; }
+        .accordion-toggle::after { content: '▼'; font-size: 0.8rem; transition: transform 0.3s ease; }
+        .accordion-toggle.active::after { transform: rotate(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease, padding 0.5s ease; background-color: #f8fafc; padding: 0 1.5rem; }
+        .accordion-content.active { max-height: 10000px; padding: 1.5rem; }
+        #add-task-form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; }
+        #task-backlog-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+        .task-card { background-color: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        #btn-schedule-tasks { font-size: 1rem; background: var(--wisdom-btn-bg); flex-grow: 1;}
+        .scheduler-controls { display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem; }
+        .delete-btn { background-color: #ef4444 !important; }
+        .delete-btn:hover { background-color: #dc2626 !important; }
+        .main-header { text-align: center; margin-bottom: 30px; }
+        .main-header h1 { font-size: 2.5em; font-weight: 700; margin-bottom: 0.2em; color: var(--primary-text);}
+        .main-header p { font-size: 1.1em; color: var(--secondary-text); }
+        .filter-section { background: var(--table-bg); padding: 25px; margin: 30px 0; border-radius: 12px; box-shadow: 0 8px 30px var(--shadow-color); }
+        .filter-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.4em; color: var(--primary-text); }
+        #searchInput { width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1em; box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s; }
+        #searchInput:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2); }
+        .section-title { font-size: 1.8em; font-weight: 700; margin-top: 50px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); color: var(--primary-text); }
+        .table-container { width: 100%; overflow-x: auto; background-color: var(--table-bg); border-radius: 12px; box-shadow: 0 8px 30px var(--shadow-color); -webkit-overflow-scrolling: touch; }
+        .contacts-table { width: 100%; border-collapse: collapse; min-width: 1200px; table-layout: auto; }
+        .contacts-table th, .contacts-table td { padding: 16px 20px; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--border-color); font-size: 15px; height: auto; }
+        .contacts-table td { cursor: text; }
+        .contacts-table thead { background-color: var(--header-bg); position: sticky; top: 0; z-index: 10; }
+        .contacts-table th { font-weight: 500; color: var(--secondary-text); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .contacts-table tbody tr { transition: background-color 0.2s ease-in-out; }
+        .contacts-table tbody tr:hover { background-color: #f1f3f5; }
+        .contacts-table tbody tr:last-child td { border-bottom: none; }
+        .role-tag { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 13px; font-weight: 500; margin-right: 5px; margin-bottom: 5px; background-color: #e9ecef; color: #495057; }
+        .level, .influence { padding: 5px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; text-align: center; display: inline-block; white-space: nowrap; }
+        .level-5 { background-color: var(--level-5-bg); color: var(--level-5-text); }
+        .level-4 { background-color: var(--level-4-bg); color: var(--level-4-text); }
+        .level-3 { background-color: var(--level-3-bg); color: var(--level-3-text); }
+        .influence.strong { background-color: var(--influence-strong-bg); color: var(--influence-strong-text); }
+        .influence.normal { background-color: var(--influence-normal-bg); color: var(--influence-normal-text); }
+        .influence.weak { background-color: var(--influence-weak-bg); color: var(--influence-weak-text); }
+        .main-footer { text-align: center; margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--border-color); font-size: 0.9em; color: #999; }
+        .toast-notification { position: fixed; bottom: 20px; right: 20px; background-color: #2d3748; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(20px); }
+        .toast-notification.show { opacity: 1; transform: translateY(0); }
+        .custom-tooltip { position: absolute; background-color: #1e293b; color: white; padding: 10px 15px; border-radius: 6px; font-size: 0.85rem; max-width: 320px; z-index: 1001; pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: pre-wrap; line-height: 1.7; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .custom-tooltip.show { opacity: 1; }
+        @media (max-width: 1200px) { .top-bar { flex-direction: column; align-items: stretch; } }
+    </style>
+</head>
+<body>
+    <div class="planner-container">
+        <div class="top-bar">
+            <div class="controls-group"><label for="hero-name">主人公:</label><input type="text" id="hero-name" placeholder="姓名"><label for="hero-birthday">生日:</label><input type="date" id="hero-birthday"><span id="hero-age-display" class="hero-age-display"></span><button id="btn-save-hero">✔️ 保存</button></div>
+            <div class="controls-group"><label for="date-jumper-text">跳转至:</label><input type="text" id="date-jumper-text" placeholder="输入日期, 如 2015-6-2"><input type="date" id="date-jumper-picker"><button id="btn-jump-to-date">🚀 跳转</button></div>
+            <div class="wealth-system">
+                <div class="wealth-item"><label>资产</label><input type="number" id="wealth-assets" placeholder="0"></div>
+                <div class="wealth-item"><label>负债</label><input type="number" id="wealth-liabilities" placeholder="0"></div>
+                <div class="wealth-item"><label>本月现金流</label><input type="number" id="wealth-cashflow" placeholder="0"></div>
+                <div class="wealth-item">
+                    <label title="用来处理不太顺心的事">糟糕金 (月现金流*5%)</label>
+                    <span id="annoyance-fund">0.00</span>
+                </div>
+                <div class="wealth-item"><label>净资产</label><span id="net-worth">0</span></div>
+            </div>
+        </div>
+        <header><div class="nav-buttons"><button id="prev-year">«</button><button id="prev-month">‹</button></div><h1 id="month-year-header"></h1><div class="nav-buttons"><button id="go-to-today">今日</button><button id="next-month">›</button><button id="next-year">»</button></div></header>
+        
+        <main>
+            <table>
+                <thead><tr><th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th></tr></thead>
+                <tbody id="calendar-body"></tbody>
+            </table>
+        </main>
+
+        <div class="system-section">
+            <button class="accordion-toggle">我的朋友圈</button>
+            <div class="accordion-content">
+                <header class="main-header">
+                    <h1>🙈 朋友圈</h1>
+                    <p>通往幸福的道路，是你找到你想让他幸福的那155个人。</p>
+                </header>
+                <div class="filter-section">
+                    <h3>高效筛选</h3>
+                    <input type="text" id="searchInput" placeholder="在此输入名字、城市、行业、爱好等任意关键词进行筛选...">
+                </div>
+                <h2 class="section-title">黄金圈 (155人)</h2>
+                <div class="table-container">
+                    <table class="contacts-table" id="golden-circle-table">
+                        <thead>
+                            <tr><th>名字</th><th>角色</th><th>职业</th><th>行业</th><th>地点</th><th>爱好</th><th>生日</th><th>亲密等级</th><th>影响力</th><th>他有什么资源</th><th>他是谁的贵人</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <h2 class="section-title">似水年华</h2>
+                <div class="table-container">
+                    <table class="contacts-table" id="past-friends-table">
+                        <thead>
+                             <tr><th>名字</th><th>角色</th><th>职业</th><th>行业</th><th>地点</th><th>爱好</th><th>生日</th><th>关系说明</th><th>影响力</th><th>他有什么资源</th><th>他是谁的贵人</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                 <div style="text-align: right; margin-top: 1rem;">
+                    <button id="add-past-friend-btn">➕ 添加似水年华记录</button>
+                </div>
+                <footer class="main-footer"><p>人和人的缘分很奇妙。不断流动的人脉圈才是健康的。—— 2025</p></footer>
+            </div>
+        </div>
+
+        <div class="system-section">
+            <button class="accordion-toggle active">任务栏 (Task Kiosk)</button>
+            <div class="accordion-content active">
+                <form id="add-task-form">
+                    <input type="text" id="new-task-input" placeholder="!重要任务, ?思考题, 日常任务 (用逗号隔开)" required style="flex-grow: 1;">
+                    <button type="submit">➕ 批量添加</button>
+                </form>
+                <div id="task-backlog">
+                    <h3 style="font-weight: 500; margin-bottom: 1rem;">待办列表</h3>
+                    <div id="task-backlog-container"></div>
+                </div>
+                <div class="scheduler-controls">
+                    <select id="schedule-period">
+                        <option value="day">一天内 (按时辰)</option>
+                        <option value="week" selected>一周内 (按日)</option>
+                        <option value="month">一月内 (按日)</option>
+                        <option value="year">一年内 (按月)</option>
+                    </select>
+                    <button id="btn-schedule-tasks">☯️ 使用易经智慧自动规划</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="custom-tooltip-container"></div>
+
+<script>
+// =================================================================================
+// Life Planner App V6.2 - Architected & Refactored
+// =================================================================================
+const LifePlannerApp = {};
+
+// --- 1. CONFIG MODULE: All static data and configurations ---
+LifePlannerApp.config = {
+    STORAGE_KEYS: {
+        HERO: 'heroInfo_v1',
+        TASKS: 'taskList_v1',
+        NOTES: 'plannerNotes_v1',
+        FINANCIALS: 'financials_v1',
+        PAST_FRIENDS: 'pastFriends_v1'
+    },
+    I_CHING_DATA: [{n:1,p:"qián",h:"䷀",t:"创造力。纯粹的阳性能量，适合开始、行动和领导。",type:"行动"},{n:2,p:"kūn",h:"䷁",t:"接受性。纯粹的阴性能量，适合支持、培养和耐心等待。",type:"规划"},{n:3,p:"zhūn",h:"䷂",t:"初生困难。启动虽难，但潜力巨大，需要坚持。",type:"挑战"},{n:4,p:"méng",h:"䷃",t:"蒙昧。需要启蒙和教育，不宜鲁莽行事。",type:"规划"},{n:5,p:"xū",h:"䷄",t:"等待。时机未到，需要耐心和信心。",type:"规划"},{n:6,p:"sòng",h:"䷅",t:"冲突。有争议，最好避免或寻求调解。",type:"挑战"},{n:7,p:"shī",h:"䷆",t:"军队。需要纪律、组织和领导力。",type:"行动"},{n:8,p:"bǐ",h:"䷇",t:"亲近。团结与合作带来好运。",type:"平顺"},{n:9,p:"xiǎo chù",h:"䷈",t:"小的蓄养。有小的阻碍，但前景光明。",type:"平顺"},{n:10,p:"lǚ",h:"䷉",t:"履行。行为谨慎，即使在危险中也能前进。",type:"挑战"},{n:11,p:"tài",h:"䷊",t:"通泰。天地交泰，万事亨通，和谐。",type:"平顺"},{n:12,p:"pǐ",h:"䷋",t:"否塞。天地不交，有障碍，需退守。",type:"挑战"},{n:13,p:"tóng rén",h:"䷌",t:"与人协同。在开放中寻求合作。",type:"行动"},{n:14,p:"dà yǒu",h:"䷍",t:"大的拥有。谦逊地拥有财富和成功。",type:"平顺"},{n:15,p:"qiān",h:"䷎",t:"谦逊。谦虚使人进步，带来平衡。",type:"规划"},{n:16,p:"yù",h:"䷏",t:"愉悦。顺应时势，带来喜悦和热情。",type:"平顺"},{n:17,p:"suí",h:"䷐",t:"跟隨。适应变化，灵活应对。",type:"平顺"},{n:18,p:"gǔ",h:"䷑",t:"整饬。修正过去的错误，带来新生。",type:"挑战"},{n:19,p:"lín",h:"䷒",t:"君临。领导力和影响力增长的时刻。",type:"行动"},{n:20,p:"guān",h:"䷓",t:"观察。审视内在和外在，获得更深的理解。",type:"规划"},{n:21,p:"shì hé",h:"䷔",t:"噬嗑。采取果断行动，克服障碍。",type:"行动"},{n:22,p:"bì",h:"䷕",t:"装饰。优雅和美感，但注重实质。",type:"平顺"},{n:23,p:"bō",h:"䷖",t:"剥落。事物正在瓦解，不宜行动。",type:"挑战"},{n:24,p:"fù",h:"䷗",t:"回归。转折点，阳气回归。",type:"平顺"},{n:25,p:"wú wàng",h:"䷘",t:"无妄。顺其自然，不要有不切实际的期望。",type:"规划"},{n:26,p:"dà chù",h:"䷙",t:"大的蓄养。积累力量和潜能。",type:"规划"},{n:27,p:"yí",h:"䷚",t:"颐养。注意言语和饮食，滋养身心。",type:"规划"},{n:28,p:"dà guò",h:"䷛",t:"大的过度。压力巨大，需要非凡的行动。",type:"挑战"},{n:29,p:"kǎn",h:"䷜",t:"坎险。身处危险之中，但保持真诚可渡过。",type:"挑战"},{n:30,p:"lí",h:"䷝",t:"附着。如火一般，依赖于他人而发光。",type:"行动"},{n:31,p:"xián",h:"䷞",t:"感应。相互吸引和影响。",type:"平顺"},{n:32,p:"héng",h:"䷟",t:"恒久。持久和耐力带来成功。",type:"规划"},{n:33,p:"dùn",h:"䷠",t:"退避。战略性撤退，保存实力。",type:"挑战"},{n:34,p:"dà zhuàng",h:"䷡",t:"大的强盛。力量强大，但需防止滥用。",type:"行动"},{n:35,p:"jìn",h:"䷢",t:"前进。进展顺利，如日中天。",type:"行动"},{n:36,p:"míng yí",h:"䷣",t:"光明受伤。在逆境中隐藏自己的光芒。",type:"挑战"},{n:37,p:"jiā rén",h:"䷤",t:"家人。家庭中的责任和角色。",type:"平顺"},{n:38,p:"kuí",h:"䷥",t:"睽违。有对立和误解，求同存异。",type:"挑战"},{n:39,p:"jiǎn",h:"䷦",t:"艰难。前进有困难，寻求帮助。",type:"挑战"},{n:40,p:"xiè",h:"䷧",t:"解脱。困难得到解决，紧张缓解。",type:"平顺"},{n:41,p:"sǔn",h:"䷨",t:"减少。有时损失是为了更大的收益。",type:"规划"},{n:42,p:"yì",h:"䷩",t:"增益。利于采取行动，会得到帮助。",type:"行动"},{n:43,p:"guài",h:"䷪",t:"决断。需要做出坚定的决定。",type:"行动"},{n:44,p:"gòu",h:"䷫",t:"相遇。意外的相遇，阴长阳消的开始。",type:"挑战"},{n:45,p:"cuì",h:"䷬",t:"聚集。人或物聚集在一起。",type:"平顺"},{n:46,p:"shēng",h:"䷭",t:"上升。持续努力带来稳步的成长。",type:"平顺"},{n:47,p:"kùn",h:"䷮",t:"困境。被困住，但保持乐观可找到出路。",type:"挑战"},{n:48,p:"jǐng",h:"䷯",t:"井。内在资源不变，可以滋养他人。",type:"规划"},{n:49,p:"gé",h:"䷰",t:"变革。彻底的改变和革命。",type:"行动"},{n:50,p:"dǐng",h:"䷱",t:"鼎。承载和转化，象征新的开始。",type:"平顺"},{n:51,p:"zhèn",h:"䷲",t:"震动。突如其来的事件，虽惊但能带来新生。",type:"挑战"},{n:52,p:"gèn",h:"䷳",t:"停止。保持静止和内心的平静。",type:"规划"},{n:53,p:"jiàn",h:"䷴",t:"渐进。逐步发展，如女出嫁。",type:"规划"},{n:54,p:"guī mèi",h:"䷵",t:"归妹。关系处理不当，需谨慎。",type:"挑战"},{n:55,p:"fēng",h:"䷶",t:"丰盛。达到顶峰，但需防备衰退。",type:"平顺"},{n:56,p:"lǚ",h:"䷷",t:"旅行。作为异乡人的孤独和谨慎。",type:"平顺"},{n:57,p:"xùn",h:"䷸",t:"顺从。如风一般，温和地渗透。",type:"规划"},{n:58,p:"duì",h:"䷹",t:"喜悦。与朋友交流的快乐。",type:"平顺"},{n:59,p:"huàn",h:"䷺",t:"涣散。离散之后需要重新聚合。",type:"挑战"},{n:60,p:"jié",h:"䷻",t:"节制。限制是必要的，不要过度。",type:"规划"},{n:61,p:"zhōng fú",h:"䷼",t:"中孚。内在的真诚带来最大的影响力。",type:"平顺"},{n:62,p:"xiǎo guò",h:"䷽",t:"小的过度。在小事上谨慎，大事上不宜。",type:"挑战"},{n:63,p:"jì jì",h:"䷾",t:"既济。事情已完成，但需警惕。",type:"平顺"},{n:64,p:"wèi jì",h:"䷿",t:"未济。事情未完成，混乱中充满潜力。",type:"挑战"}],
+    SHI_CHEN_DATA: [ {h:23, n:"子", e:"水"}, {h:1, n:"丑", e:"土"}, {h:3, n:"寅", e:"木"}, {h:5, n:"卯", e:"木"}, {h:7, n:"辰", e:"土"}, {h:9, n:"巳", e:"火"}, {h:11, n:"午", e:"火"}, {h:13, n:"未", e:"土"}, {h:15, n:"申", e:"金"}, {h:17, n:"酉", e:"金"}, {h:19, n:"戌", e:"土"}, {h:21, n:"亥", e:"水"} ],
+    MONTHLY_HEXAGRAMS: [19, 11, 34, 43, 1, 44, 33, 12, 20, 23, 2, 24],
+};
+
+// --- 2. DIET MODULE: Contains all dietary logic and data ---
+LifePlannerApp.diet = (() => {
+    const HOLIDAY_DATES = {
+        cny: { 2023: '01-22', 2024: '02-10', 2025: '01-29', 2026: '02-17', 2027: '02-06', 2028: '01-26' },
+        dragonBoat: { 2023: '06-22', 2024: '06-10', 2025: '05-31', 2026: '06-19', 2027: '06-09', 2028: '05-28' },
+        midAutumn: { 2023: '09-29', 2024: '09-17', 2025: '10-06', 2026: '09-25', 2027: '09-15', 2028: '10-03' }
+    };
+
+    const DIET_LOGIC = {
+        dailyMeals: {
+            training: { theme: "💪 力量日-中高碳水", details: "早餐: 燕麦粥, 水煮蛋\n午餐(训练后): 鸡胸肉/虾仁, 藜麦/糙米, 大量蔬菜\n加餐: 希腊酸奶, 坚果\n晚餐: 清蒸鱼, 炒绿叶菜, 少量山药/芋头" },
+            rest: { theme: "🥗 休息日-低碳水", details: "早餐: 小米粥, 豆浆, 鸡蛋\n午餐: 卤牛肉, 大份蔬菜沙拉\n加餐: 一个苹果\n晚餐: 鱼头豆腐汤, 或白菜炖豆腐, 搭配清炒时蔬" },
+            social: { theme: "🥂 社交日-策略饮食", details: "策略: 餐前喝水, 多选蒸煮菜肴, 细嚼慢咽, 七分饱即可。享受美食, 无需愧疚。" }
+        },
+        seasonalFocus: {
+            spring: { theme: "春季: 疏肝理气，升发阳气", points: "口味宜清淡，多吃甘味、辛味的食物。", protagonists: "韭菜、菠菜、香椿、春笋、豆苗、草莓、新鲜河鲜。", dishes: "香椿炒鸡蛋、油焖春笋、韭菜炒河虾、草莓酸奶。" },
+            summer: { theme: "夏季: 清热解暑，健脾养心", points: "清淡祛湿，多吃“瓜族”和有清凉作用的蔬菜。", protagonists: "苦瓜、冬瓜、丝瓜、黄瓜、空心菜、西瓜、桃子。", dishes: "凉拌苦瓜、冬瓜海带汤、蒜蓉空心菜、绿豆汤。" },
+            autumn: { theme: "秋季: 润燥滋阴，养肺为先", points: "滋阴润燥，多吃白色食物。适量摄入酸味食物以收敛肺气。", protagonists: "莲藕、山药、百合、南瓜、梨、螃蟹、鸭肉。", dishes: "莲藕排骨汤、山药炒木耳、银耳雪梨羹、清蒸大闸蟹。" },
+            winter: { theme: "冬季: 温补肾阳，潜藏精气", points: "温热补养，增加蛋白质摄入以御寒。多吃根茎类蔬菜。", protagonists: "白萝卜、大白菜、羊肉、牛肉、菌菇、柑橘。", dishes: "萝卜炖羊肉/牛腩、白菜豆腐保平安、香菇炖鸡汤。" }
+        },
+        holidays: {
+            cnyEve: { theme: "🧧 除夕: 健康年夜饭", details: "核心: 多蒸煮凉拌, 少油炸红烧, 荤素搭配。\n推荐菜: 清蒸鱼(年年有余), 白灼虾(生机勃勃), 全家福砂锅(温暖团圆)。" },
+            dragonBoat: { theme: "🐲 端午: 品尝健康粽", details: "核心: 浅尝辄止，优选健康馅料。\n推荐: 优选杂粮粽、红豆粽、素粽；肉粽热量高，与家人分享一个即可。" },
+            midAutumn: { theme: "🌕 中秋: 月饼配清茶", details: "核心: 分享与品味，而非饱腹。\n建议: 将月饼切成小块与家人分享，搭配乌龙茶或普洱茶解腻。" },
+            winterSolstice: { theme: "🥟 冬至: 健康饺子宴", details: "俗话说“冬至大如年”。\n建议: 全家一起包三鲜馅、素馅饺子，肉馅选择精瘦肉并多加蔬菜，增加膳食纤维。" },
+            newYear: { theme: "🎉 元旦: 家庭聚餐", details: "庆祝新年，可安排一次策略性自由餐。\n要点: 享受美食，但注意总量，保持八分饱。" },
+            laborDay: { theme: "🛠️ 劳动节: 能量补充", details: "如果外出活动，记得补充优质碳水和蛋白质。" },
+            nationalDay: { theme: "🇨🇳 国庆节: 出行注意饮食", details: "长假出行，舟车劳顿，饮食更应规律。\n建议: 避免暴饮暴食，多喝水，多吃水果蔬菜，保持肠胃活力。" }
+        },
+        solarTerms: {"02-04":"立春","02-19":"雨水","03-05":"惊蛰","03-20":"春分","04-04":"清明","04-19":"谷雨","05-05":"立夏","05-21":"小满","06-05":"芒种","06-21":"夏至","07-06":"小暑","07-22":"大暑","08-07":"立秋","08-23":"处暑","09-07":"白露","09-23":"秋分","10-08":"寒露","10-23":"霜降","11-07":"立冬","11-22":"冬至","12-07":"大雪","12-21":"冬至","01-05":"小寒","01-20":"大寒"}
+    };
+
+    const formatMonthDayKey = (date) => `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    
+    const getPlan = (date) => {
+        const year = date.getFullYear();
+        const monthDay = formatMonthDayKey(date);
+        
+        // Priority 1: Holidays (Precise)
+        const tomorrow = new Date(date);
+        tomorrow.setDate(date.getDate() + 1);
+        if (HOLIDAY_DATES.cny[tomorrow.getFullYear()] === formatMonthDayKey(tomorrow)) return DIET_LOGIC.holidays.cnyEve;
+        if (HOLIDAY_DATES.dragonBoat[year] === monthDay) return DIET_LOGIC.holidays.dragonBoat;
+        if (HOLIDAY_DATES.midAutumn[year] === monthDay) return DIET_LOGIC.holidays.midAutumn;
+        if (monthDay === '01-01') return DIET_LOGIC.holidays.newYear;
+        if (monthDay === '05-01') return DIET_LOGIC.holidays.laborDay;
+        if (monthDay === '10-01') return DIET_LOGIC.holidays.nationalDay;
+        if ((monthDay === '12-21' || monthDay === '12-22') && DIET_LOGIC.solarTerms[monthDay] === '冬至') return DIET_LOGIC.holidays.winterSolstice;
+
+        // Priority 2: Solar Terms
+        const solarTerm = DIET_LOGIC.solarTerms[monthDay];
+        if (solarTerm) {
+            const month = date.getMonth();
+            const seasonKey = (month >= 2 && month <= 4) ? 'spring' : (month >= 5 && month <= 7) ? 'summer' : (month >= 8 && month <= 10) ? 'autumn' : 'winter';
+            const seasonalData = DIET_LOGIC.seasonalFocus[seasonKey];
+            return {
+                theme: `节气: ${solarTerm}`,
+                details: `今日进入“${solarTerm}”节气，饮食宜遵循[${seasonalData.theme}]原则。\n\n饮食要点: ${seasonalData.points}\n主角食材: ${seasonalData.protagonists}\n推荐菜式: ${seasonalData.dishes}`
+            };
+        }
+
+        // Priority 3: Regular Weekly Cycle
+        const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon...
+        let planType = (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) ? 'training' : (dayOfWeek === 6) ? 'social' : 'rest';
+        
+        const weeklyPlan = DIET_LOGIC.dailyMeals[planType];
+        const month = date.getMonth();
+        const seasonKey = (month >= 2 && month <= 4) ? 'spring' : (month >= 5 && month <= 7) ? 'summer' : (month >= 8 && month <= 10) ? 'autumn' : 'winter';
+        const seasonalData = DIET_LOGIC.seasonalFocus[seasonKey];
+        
+        const combinedDetails = `${weeklyPlan.details}\n\n---\n【当季饮食智慧: ${seasonalData.theme}】\n- 饮食要点: ${seasonalData.points}\n- 主角食材: ${seasonalData.protagonists}\n- 推荐菜式: ${seasonalData.dishes}`;
+
+        return { theme: weeklyPlan.theme, details: combinedDetails };
+    };
+
+    return { getDailyPlan: getPlan };
+})();
+
+// --- 3. STATE MODULE: Manages the application's current state ---
+LifePlannerApp.state = {
+    currentDate: new Date(),
+    hero: {},
+    tasks: [],
+    pastFriends: [], 
+    birthdayMap: new Map()
+};
+
+// --- 4. STORAGE MODULE: Handles all interactions with localStorage ---
+LifePlannerApp.storage = (() => {
+    const { STORAGE_KEYS } = LifePlannerApp.config;
+    const safeJSONParse = (jsonString, defaultValue) => {
+        try { return JSON.parse(jsonString) || defaultValue; } catch { return defaultValue; }
+    };
+    return {
+        get: (key, defaultValue) => safeJSONParse(localStorage.getItem(key), defaultValue),
+        set: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+        loadAllData: () => {
+            const { state } = LifePlannerApp;
+            state.hero = LifePlannerApp.storage.get(STORAGE_KEYS.HERO, { name: '', birthday: '' });
+            state.tasks = LifePlannerApp.storage.get(STORAGE_KEYS.TASKS, []);
+            state.pastFriends = LifePlannerApp.storage.get(STORAGE_KEYS.PAST_FRIENDS, [
+                { name: '王涛', role: '前同事', job: '程序员', industry: '软件', city: '北京', hobby: '游戏', bday: '04-01', reason: '离职后联系渐少', influence: 'weak', resources: '技术能力强', benefactor: '待补充' },
+                { name: '林琳', role: '大学同学', job: '公务员', industry: '政府', city: '老家', hobby: '看书', bday: '09-10', reason: '毕业后异地发展', influence: 'weak', resources: '待补充', benefactor: '待补充' }
+            ]);
+        }
+    };
+})();
+
+// --- 5. UI MODULE: Handles all DOM interactions and rendering ---
+LifePlannerApp.ui = (() => {
+    const { state, config, diet, storage } = LifePlannerApp;
+    const { I_CHING_DATA, MONTHLY_HEXAGRAMS, SHI_CHEN_DATA, STORAGE_KEYS } = config;
+
+    const DOMElements = {
+        calendarBody: document.getElementById('calendar-body'), monthYearHeader: document.getElementById('month-year-header'),
+        heroNameInput: document.getElementById('hero-name'), heroBirthdayInput: document.getElementById('hero-birthday'),
+        saveHeroBtn: document.getElementById('btn-save-hero'), heroAgeDisplay: document.getElementById('hero-age-display'),
+        dateJumperTextInput: document.getElementById('date-jumper-text'), dateJumperPickerInput: document.getElementById('date-jumper-picker'),
+        jumpToDateBtn: document.getElementById('btn-jump-to-date'), wealthAssetsInput: document.getElementById('wealth-assets'),
+        wealthLiabilitiesInput: document.getElementById('wealth-liabilities'), wealthCashflowInput: document.getElementById('wealth-cashflow'),
+        netWorthSpan: document.getElementById('net-worth'), annoyanceFundSpan: document.getElementById('annoyance-fund'),
+        addTaskForm: document.getElementById('add-task-form'), newTaskInput: document.getElementById('new-task-input'),
+        taskBacklogContainer: document.getElementById('task-backlog-container'), btnScheduleTasks: document.getElementById('btn-schedule-tasks'),
+        accordions: document.querySelectorAll('.accordion-toggle'),
+        tooltipContainer: document.getElementById('custom-tooltip-container'),
+        prevYearBtn: document.getElementById('prev-year'), prevMonthBtn: document.getElementById('prev-month'),
+        todayBtn: document.getElementById('go-to-today'), nextMonthBtn: document.getElementById('next-month'),
+        nextYearBtn: document.getElementById('next-year'),
+        searchInput: document.getElementById('searchInput'),
+        goldenTableBody: document.querySelector('#golden-circle-table tbody'),
+        pastTableBody: document.querySelector('#past-friends-table tbody'),
+        addPastFriendBtn: document.getElementById('add-past-friend-btn')
+    };
+    
+    const getAge = (birthDate, onDate) => { let age = onDate.getFullYear() - birthDate.getFullYear(); const m = onDate.getMonth() - birthDate.getMonth(); if (m < 0 || (m === 0 && onDate.getDate() < birthDate.getDate())) age--; return age; };
+    const formatDateKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const formatMonthKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const mulberry32 = (seed) => () => { let t = seed += 0x6D2B79F5; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const getHexagramForDate = (date) => { const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate(); const rand = mulberry32(seed); const index = Math.floor(rand() * 64); return I_CHING_DATA[index]; };
+
+    const showToast = (message, duration = 3000) => {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.classList.add('show'); }, 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, duration);
+    };
+
+    const tooltip = {
+        element: null,
+        init: function() {
+            this.element = document.createElement('div');
+            this.element.className = 'custom-tooltip';
+            DOMElements.tooltipContainer.appendChild(this.element);
+        },
+        show: function(content, event) {
+            this.element.innerHTML = content.replace(/\n/g, '<br>');
+            this.element.classList.add('show');
+            this.updatePosition(event);
+        },
+        hide: function() { this.element.classList.remove('show'); },
+        updatePosition: function(event) {
+            let x = event.pageX + 15; let y = event.pageY + 15;
+            if (x + this.element.offsetWidth > window.innerWidth) x = event.pageX - this.element.offsetWidth - 15;
+            if (y + this.element.offsetHeight > window.innerHeight) y = event.pageY - this.element.offsetHeight - 15;
+            this.element.style.left = `${x}px`; this.element.style.top = `${y}px`;
+        }
+    };
+    
+    const renderAll = () => { renderCalendar(); renderTaskList(); loadFinancials(); updateHeroAgeDisplay(); };
+
+    function renderCalendar() {
+        DOMElements.calendarBody.innerHTML = '';
+        DOMElements.monthYearHeader.textContent = `${state.currentDate.getFullYear()}年 ${state.currentDate.getMonth() + 1}月`;
+        const { year, month } = { year: state.currentDate.getFullYear(), month: state.currentDate.getMonth() };
+        const firstDayOfMonth = new Date(year, month, 1);
+        let startingDay = (firstDayOfMonth.getDay() + 6) % 7;
+        let dateCounter = new Date(firstDayOfMonth);
+        dateCounter.setDate(dateCounter.getDate() - startingDay);
+        const todayKey = formatDateKey(new Date());
+        let heroBirthDate = state.hero.birthday ? new Date(state.hero.birthday) : null;
+
+        for (let i = 0; i < 6; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < 7; j++) {
+                const cell = document.createElement('td');
+                const cellDate = new Date(dateCounter);
+                const dateKey = formatDateKey(cellDate);
+                const hexagram = getHexagramForDate(cellDate);
+
+                cell.innerHTML = `
+                    <div class="cell-wrapper">
+                        <div class="cell-top">
+                            <div class="daily-wisdom" title="${hexagram.t}"><div class="gua-symbol">${hexagram.h}</div><div>${hexagram.p}</div></div>
+                            <div class="date-header"><span class="birthday-tag"></span><span class="date-number">${cellDate.getDate()}</span></div>
+                        </div>
+                        <div class="reminders"></div>
+                        <div class="notes" contenteditable="true" data-datekey="${dateKey}">${storage.get(STORAGE_KEYS.NOTES, {})[dateKey] || ''}</div>
+                    </div>`;
+                
+                const remindersContainer = cell.querySelector('.reminders');
+                let remindersHTML = [];
+                
+                const dietPlan = diet.getDailyPlan(cellDate);
+                if (dietPlan) remindersHTML.push(`<div class="reminder reminder-diet" data-tooltip-content="${dietPlan.details.replace(/"/g, '&quot;')}"><span class="reminder-text">${dietPlan.theme}</span></div>`);
+                
+                const cellMonthDay = `${String(cellDate.getMonth() + 1).padStart(2, '0')}-${String(cellDate.getDate()).padStart(2, '0')}`;
+                if (state.birthdayMap.has(cellMonthDay)) {
+                    state.birthdayMap.get(cellMonthDay).forEach(friend => remindersHTML.push(`<div class="reminder reminder-friend" title="今天是 ${friend.name} 的生日！"><span class="reminder-text">🎂 ${friend.name} 生日</span></div>`));
+                }
+
+                state.tasks.filter(t => t.scheduledFor && t.scheduledFor.startsWith(dateKey)).forEach(task => {
+                    const timeMatch = task.scheduledFor.match(/(\d{2}:\d{2})$/);
+                    const prefix = timeMatch ? `[${timeMatch[1]}]` : '✅';
+                    remindersHTML.push(`<div class="reminder reminder-task" title="${task.text}"><span class="reminder-text">${prefix} ${task.text}</span><span class="delete-reminder-btn" data-id="${task.id}">🗑️</span></div>`);
+                });
+                
+                if (remindersHTML.length > 0) remindersContainer.innerHTML = remindersHTML.join('');
+                if (cellDate.getMonth() !== month) cell.classList.add('other-month');
+                if (dateKey === todayKey) cell.classList.add('today');
+                if (heroBirthDate && cellDate.getDate() === heroBirthDate.getDate() && cellDate.getMonth() === heroBirthDate.getMonth()) { 
+                    cell.classList.add('birthday'); 
+                    cell.querySelector('.birthday-tag').textContent = `生日 (${getAge(heroBirthDate, cellDate)}岁)`; 
+                }
+
+                row.appendChild(cell);
+                dateCounter.setDate(dateCounter.getDate() + 1);
+            }
+            DOMElements.calendarBody.appendChild(row);
+        }
+    }
+    
+    function renderTaskList() { 
+        DOMElements.taskBacklogContainer.innerHTML = ''; 
+        const unscheduledTasks = state.tasks.filter(t => !t.scheduledFor); 
+        if (unscheduledTasks.length === 0) { DOMElements.taskBacklogContainer.innerHTML = '<p style="color: #94a3b8;">暂无待办任务。</p>'; return; } 
+        unscheduledTasks.forEach(task => { 
+            const card = document.createElement('div'); 
+            card.className = 'task-card'; 
+            card.innerHTML = `<span>${task.text}</span><button class="delete-btn delete-task-btn" data-id="${task.id}">🗑️</button>`; 
+            DOMElements.taskBacklogContainer.appendChild(card); 
+        }); 
+    }
+
+    const handleNavigation = (action) => {
+        switch (action) {
+            case 'prev-year': state.currentDate.setFullYear(state.currentDate.getFullYear() - 1); break;
+            case 'prev-month': state.currentDate.setMonth(state.currentDate.getMonth() - 1); break;
+            case 'today': state.currentDate = new Date(); break;
+            case 'next-month': state.currentDate.setMonth(state.currentDate.getMonth() + 1); break;
+            case 'next-year': state.currentDate.setFullYear(state.currentDate.getFullYear() + 1); break;
+        }
+        renderAll();
+    };
+    
+    function saveHeroInfo() { 
+        state.hero = { name: DOMElements.heroNameInput.value, birthday: DOMElements.heroBirthdayInput.value }; 
+        storage.set(STORAGE_KEYS.HERO, state.hero); 
+        showToast('主人公信息已保存!'); 
+        renderAll(); 
+    }
+    
+    function updateDerivedFinancials() { 
+        const assets = parseFloat(DOMElements.wealthAssetsInput.value) || 0; 
+        const liabilities = parseFloat(DOMElements.wealthLiabilitiesInput.value) || 0; 
+        const cashflow = parseFloat(DOMElements.wealthCashflowInput.value) || 0;
+        
+        DOMElements.netWorthSpan.textContent = (assets - liabilities).toLocaleString('zh-CN', {minimumFractionDigits: 0, maximumFractionDigits: 0}); 
+        
+        const annoyanceFund = cashflow * 0.05;
+        DOMElements.annoyanceFundSpan.textContent = annoyanceFund.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function loadFinancials() { 
+        const financials = storage.get(STORAGE_KEYS.FINANCIALS, {}); 
+        const monthData = financials[formatMonthKey(state.currentDate)] || { assets: '', liabilities: '', cashflow: '' }; 
+        DOMElements.wealthAssetsInput.value = monthData.assets; 
+        DOMElements.wealthLiabilitiesInput.value = monthData.liabilities; 
+        DOMElements.wealthCashflowInput.value = monthData.cashflow; 
+        updateDerivedFinancials(); 
+    }
+
+    function saveFinancials() { 
+        const financials = storage.get(STORAGE_KEYS.FINANCIALS, {}); 
+        const monthKey = formatMonthKey(state.currentDate); 
+        financials[monthKey] = { assets: DOMElements.wealthAssetsInput.value, liabilities: DOMElements.wealthLiabilitiesInput.value, cashflow: DOMElements.wealthCashflowInput.value }; 
+        storage.set(STORAGE_KEYS.FINANCIALS, financials); 
+        updateDerivedFinancials(); 
+    }
+
+    function updateHeroAgeDisplay() { 
+        if (state.hero.birthday) { 
+            const birthDate = new Date(state.hero.birthday); 
+            const age = getAge(birthDate, state.currentDate); 
+            DOMElements.heroAgeDisplay.textContent = `当前年龄: ${age} 岁`; 
+        } else { 
+            DOMElements.heroAgeDisplay.textContent = ''; 
+        } 
+    }
+    
+    function handleJumpToDate() { 
+        let targetDate = null; 
+        const textValue = DOMElements.dateJumperTextInput.value.trim(); 
+        if (textValue) { 
+            const processedText = textValue.replace(/[年月]/g, '-').replace(/[日]/g, ''); 
+            targetDate = new Date(processedText); 
+            if (isNaN(targetDate.getTime())) { showToast('日期格式无法识别，请重试。'); return; } 
+            DOMElements.dateJumperTextInput.value = ''; 
+        } else if (DOMElements.dateJumperPickerInput.value) { 
+            targetDate = new Date(DOMElements.dateJumperPickerInput.value); 
+        } 
+        if (targetDate && !isNaN(targetDate.getTime())) { 
+            state.currentDate = new Date(targetDate.valueOf() + targetDate.getTimezoneOffset() * 60 * 1000); 
+            renderAll(); 
+        } 
+    }
+    
+    function addTask(e) {
+        e.preventDefault();
+        const rawText = DOMElements.newTaskInput.value.trim();
+        if (!rawText) return;
+        const taskStrings = rawText.split(/[,，]/);
+        taskStrings.forEach(taskString => {
+            let text = taskString.trim();
+            if (!text) return;
+            let type = '日常';
+            if (text.startsWith('!')) { type = '行动'; text = text.substring(1).trim(); }
+            else if (text.startsWith('?')) { type = '规划'; text = text.substring(1).trim(); }
+            if(text) state.tasks.push({ id: Date.now() + Math.random(), text: text, type: type, scheduledFor: null });
+        });
+        storage.set(STORAGE_KEYS.TASKS, state.tasks);
+        DOMElements.newTaskInput.value = '';
+        renderAll();
+    }
+
+    function handleSchedule() {
+        const unscheduledTasks = state.tasks.filter(t => !t.scheduledFor);
+        if (unscheduledTasks.length === 0) { showToast('没有待办任务需要规划。'); return; }
+        const period = document.getElementById('schedule-period').value;
+        const startDate = new Date(state.currentDate);
+        let scheduleSlots = [];
+        const smartDistribute = (tasksToDistribute, availableSlots, priorityMatrix) => {
+            const taskGroups = { '行动': tasksToDistribute.filter(t=>t.type==='行动'), '规划': tasksToDistribute.filter(t=>t.type==='规划'), '日常': tasksToDistribute.filter(t=>t.type==='日常') };
+            const tryToPlaceTask = (task, slotTypes) => {
+                for (const slot of availableSlots) {
+                    if (!slot.isFull && slotTypes.includes(slot.type)) { slot.tasks.push(task); task.scheduledFor = slot.key; if (slot.tasks.length >= slot.capacity) slot.isFull = true; return true; }
+                } return false;
+            };
+            for (const taskType of ['行动', '规划', '日常']) {
+                taskGroups[taskType].forEach(task => { const priorities = priorityMatrix[taskType]; for (const p of priorities) { if(tryToPlaceTask(task, [p])) break; }});
+            }
+            const leftovers = tasksToDistribute.filter(t => !t.scheduledFor);
+            leftovers.forEach(task => tryToPlaceTask(task, ['平顺', '规划', '行动']));
+        };
+        
+         if (period === 'day') {
+            const shichenPriority = { '行动': ['火', '木'], '规划': ['水', '木'], '日常': ['土', '金', '平顺'] };
+            const shichenCapacity = { '火': 2, '木': 2, '土': 1, '金': 1, '水': 1 };
+            SHI_CHEN_DATA.forEach(sc => {
+                const capacity = shichenCapacity[sc.e] || 1;
+                for(let i=0; i<capacity; i++) scheduleSlots.push({ key: `${formatDateKey(startDate)} ${String(sc.h).padStart(2,'0')}:00`, type: sc.e, tasks:[], isFull: false, capacity: 1 });
+            });
+            smartDistribute(unscheduledTasks, scheduleSlots, shichenPriority);
+        } else {
+            const hexagramPriority = { '行动': ['行动', '平顺'], '规划': ['规划', '平顺'], '日常': ['平顺', '规划', '行动'] };
+            const hexagramCapacity = { '行动': 3, '平顺': 2, '规划': 2, '挑战': 1 };
+            let days = 0;
+            if (period === 'week') days = 7;
+            if (period === 'month') days = 30;
+            if (period === 'year') {
+                for (let i = 0; i < 12; i++) {
+                    const monthDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 15);
+                    const hexagram = I_CHING_DATA.find(h => h.n === MONTHLY_HEXAGRAMS[monthDate.getMonth()]);
+                    scheduleSlots.push({ key: formatDateKey(monthDate), type: hexagram.type, tasks:[], isFull: false, capacity: (hexagramCapacity[hexagram.type] || 1) * 2 });
+                }
+            } else {
+                for (let i = 0; i < days; i++) {
+                    const day = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i);
+                    const hexagram = getHexagramForDate(day);
+                    scheduleSlots.push({ key: formatDateKey(day), type: hexagram.type, tasks:[], isFull: false, capacity: hexagramCapacity[hexagram.type] || 1 });
+                }
+            }
+            smartDistribute(unscheduledTasks, scheduleSlots, hexagramPriority);
+        }
+
+        storage.set(STORAGE_KEYS.TASKS, state.tasks);
+        renderAll();
+        const scheduledCount = unscheduledTasks.filter(t => t.scheduledFor).length;
+        showToast(`智能规划完毕！已分配 ${scheduledCount} 个任务。`);
+    }
+
+    function populateTables() {
+        const goldenCircleData = {
+            level5: [ { name: '陈静', role: '家人', job: '医生', industry: '医疗', city: '上海', hobby: '阅读、茶艺', bday: '03-18', influence: 'strong', resources: '医疗健康领域的专业知识', benefactor: '待补充' }, { name: '李强', role: '挚友', job: '律师', industry: '法律', city: '北京', hobby: '健身、辩论', bday: '11-02', influence: 'strong', resources: '法律咨询、逻辑思维', benefactor: '待补充' }, { name: '王伟', role: '学长', job: '企业家', industry: '科技', city: '深圳', hobby: '高尔夫、投资', bday: '08-25', influence: 'strong', resources: '创业经验、行业人脉', benefactor: '待补充' }, { name: '张敏', role: '伴侣', job: '设计师', industry: '艺术', city: '杭州', hobby: '绘画、旅行', bday: '05-10', influence: 'normal', resources: '情感支持、创意灵感', benefactor: '待补充' }, { name: '刘洋', role: '发小', job: '教师', industry: '教育', city: '成都', hobby: '足球、美食', bday: '07-21', influence: 'normal', resources: '教育资源、绝对信任', benefactor: '待补充' } ],
+            level4: [ { name: '赵丽', role: '同事', job: '产品经理', industry: '互联网', city: '北京', hobby: '滑雪', bday: '01-15' }, { name: '孙悦', role: '朋友', job: '运营', industry: '电商', city: '杭州', hobby: '摄影', bday: '02-28' }, { name: '周鹏', role: '同学', job: '工程师', industry: '软件', city: '上海', hobby: '编程', bday: '04-12' }, { name: '吴杰', role: '朋友', job: '投资人', industry: '金融', city: '香港', hobby: '徒步', bday: '06-30' }, { name: '郑秀', role: '邻居', job: '自由职业', industry: '写作', city: '广州', hobby: '阅读', bday: '09-05' }, { name: '冯涛', role: '客户', job: '销售总监', industry: '快消品', city: '深圳', hobby: '钓鱼', bday: '12-01' }, { name: '钱坤', role: '导师', job: '教授', industry: '学术', city: '南京', hobby: '历史', bday: '10-18' }, { name: '蒋欣', role: '合作方', job: '市场经理', industry: '广告', city: '上海', hobby: '看展', bday: '03-22' }, { name: '沈浩', role: '网友', job: '游戏策划', industry: '游戏', city: '成都', hobby: '电竞', bday: '08-08' }, { name: '韩梅', role: '朋友', job: '人力资源', industry: '全行业', city: '北京', hobby: '瑜伽', bday: '05-16' }, { name: '曹芳', role: '朋友', job: 'UI设计师', industry: '互联网', city: '杭州', hobby: '手账', bday: '07-19' }, { name: '袁平', role: '球友', job: '程序员', industry: '软件', city: '武汉', hobby: '篮球', bday: '11-11' }, { name: '邓琳', role: '书友', job: '编辑', industry: '出版', city: '北京', hobby: '写作', bday: '01-29' }, { name: '许峰', role: '前同事', job: '数据分析师', industry: '金融', city: '上海', hobby: '电影', bday: '04-03' }, { name: '侯勇', role: '健身教练', job: '教练', industry: '健康', city: '广州', hobby: '撸铁', bday: '06-14' }, { name: '傅明', role: '朋友', job: '建筑师', industry: '建筑', city: '重庆', hobby: '模型', bday: '09-27' }, { name: '丁磊', role: '网友', job: '博主', industry: '自媒体', city: '长沙', hobby: '视频剪辑', bday: '12-15' }, { name: '薛琪', role: '朋友', job: '会计师', industry: '金融', city: '天津', hobby: '烘焙', bday: '02-09' }, { name: '孔亮', role: '同学', job: '研究生', industry: 'AI', city: '合肥', hobby: '科研', bday: '07-07' }, { name: '白雪', role: '朋友', job: '插画师', industry: '艺术', city: '厦门', hobby: '画画', bday: '10-01' }, { name: '常远', role: '朋友', job: '公务员', industry: '政府', city: '西安', hobby: '书法', bday: '08-16' }, { name: '贺军', role: '合作伙伴', job: 'CEO', industry: '初创公司', city: '苏州', hobby: '跑步', bday: '05-25' }, { name: '康辉', role: '朋友', job: '记者', industry: '媒体', city: '北京', hobby: '采访', bday: '03-05' }, { name: '黄蓉', role: '朋友', job: '美食家', industry: '餐饮', city: '成都', hobby: '探店', bday: '09-12' }, { name: '萧峰', role: '朋友', job: '项目经理', industry: '建筑', city: '大连', hobby: '航海', bday: '12-24' }, { name: '任盈盈', role: '朋友', job: '音乐家', industry: '音乐', city: '上海', hobby: '古筝', bday: '02-18' }, { name: '令狐冲', role: '酒友', job: '酿酒师', industry: '酒业', city: '贵州', hobby: '品酒', bday: '06-06' }, { name: '郭靖', role: '朋友', job: '兽医', industry: '农业', city: '内蒙古', hobby: '骑马', bday: '10-30' }, { name: '段誉', role: '网友', job: '程序员', industry: '区块链', city: '杭州', hobby: '围棋', bday: '01-01' }, { name: '王语嫣', role: '朋友', job: '图书管理员', industry: '文化', city: '苏州', hobby: '读书', bday: '04-23' }, { name: '杨过', role: '朋友', job: '摄影师', industry: '自由职业', city: '云南', hobby: '旅行摄影', bday: '07-14' }, { name: '小龙女', role: '朋友', job: '舞蹈家', industry: '艺术', city: '北京', hobby: '养蜂', bday: '11-20' }, { name: '韦小宝', role: '朋友', job: '商人', industry: '贸易', city: '扬州', hobby: '社交', bday: '05-15' }, { name: '双儿', role: '朋友', job: '护士', industry: '医疗', city: '北京', hobby: '烹饪', bday: '08-28' }, { name: '陈家洛', role: '朋友', job: 'NGO工作者', industry: '公益', city: '上海', hobby: '志愿者', bday: '03-12' }, { name: '霍青桐', role: '朋友', job: '策略分析师', industry: '咨询', city: '北京', hobby: '马术', bday: '09-09' }, { name: '张无忌', role: '朋友', job: '中医师', industry: '医疗', city: '成都', hobby: '太极', bday: '06-20' }, { name: '赵敏', role: '朋友', job: '郡主', industry: '管理', city: '大都', hobby: '布局', bday: '10-28' }, { name: '周芷若', role: '朋友', job: '掌门', industry: '武林', city: '峨眉', hobby: '练功', bday: '07-09' }, { name: '虚竹', role: '朋友', job: '逍遥派掌门', industry: '管理', city: '天山', hobby: '下棋', bday: '04-08' }, { name: '石破天', role: '朋友', job: '侠客', industry: '江湖', city: '侠客岛', hobby: '学习', bday: '12-08' }, { name: '丁珰', role: '朋友', job: '帮主夫人', industry: '管理', city: '长乐帮', hobby: '玩乐', bday: '02-14' }, { name: '袁承志', role: '朋友', job: '金蛇王', industry: '冒险', city: '华山', hobby: '探险', bday: '05-05' }, { name: '夏青青', role: '朋友', job: '温家大小姐', industry: '家族', city: '石梁', hobby: '女红', bday: '08-15' }, { name: '胡斐', role: '朋友', job: '雪山飞狐', industry: '侠客', city: '雪山', hobby: '行侠仗义', bday: '11-08' }, { name: '苗若兰', role: '朋友', job: '大家闺秀', industry: '文化', city: '商家堡', hobby: '诗词', bday: '03-25' }, { name: '狄云', role: '朋友', job: '连城诀传人', industry: '寻宝', city: '藏边', hobby: '求生', bday: '09-30' }, { name: '水笙', role: '朋友', job: '江湖女侠', industry: '骑行', city: '雪谷', hobby: '骑马', bday: '01-20' }, { name: '阿朱', role: '朋友', job: '易容高手', industry: '情报', city: '燕子坞', hobby: '易容', bday: '07-07' }, { name: '阿紫', role: '朋友', job: '星宿派', industry: '用毒', city: '星宿海', hobby: '作弄人', bday: '10-13' } ],
+            level3: [ '白毅', '蔡斌', '曹磊', '常静', '程皓', '崔健', '戴兵', '邓超', '丁霞', '董洁', '杜娟', '段奕宏', '樊纲', '范伟', '方文山', '冯巩', '傅艺伟', '高圆圆', '葛优', '耿乐', '龚琳娜', '管虎', '郭德纲', '海清', '韩红', '何冰', '洪剑涛', '侯鸿亮', '胡歌', '黄渤', '黄磊', '贾樟柯', '姜文', '蒋雯丽', '金星', '景甜', '孔笙', '郎朗', '雷佳音', '李冰冰', '李健', '李雪健', '李宇春', '梁静', '林永健', '刘欢', '刘涛', '刘烨', '娄烨', '陆川', '马东', '马伊琍', '梅婷', '那英', '宁浩', '潘粤明', '濮存昕', '秦海璐', '任素汐', '沙溢', '沈腾', '宋佳', '孙红雷', '孙俪', '谭盾', '汤唯', '陶虹', '田壮壮', '汪峰', '王宝强', '王景春', '王千源', '王学圻', '王志文', '吴京', '吴秀波', '夏雨', '徐帆', '徐峥', '许晴', '闫妮', '杨坤', '杨澜', '杨幂', '姚晨', '易烊千玺', '于和伟', '余男', '袁泉', '岳云鹏', '张嘉译', '张涵予', '张国立', '张译', '张艺谋', '章子怡', '赵本山', '赵薇', '甄子丹', '周迅' ]
+        };
+        const allFriends = [ ...goldenCircleData.level5, ...goldenCircleData.level4, ...goldenCircleData.level3.map(name => ({ name: name, bday: `${String(Math.floor(Math.random()*12)+1).padStart(2,'0')}-${String(Math.floor(Math.random()*28)+1).padStart(2,'0')}` })) ];
+        
+        state.birthdayMap.clear();
+        allFriends.forEach(friend => { if (friend.bday && friend.bday.includes('-')) { if (!state.birthdayMap.has(friend.bday)) state.birthdayMap.set(friend.bday, []); state.birthdayMap.get(friend.bday).push(friend); }});
+
+        DOMElements.goldenTableBody.innerHTML = '';
+        DOMElements.pastTableBody.innerHTML = '';
+        const influences = ['strong', 'normal', 'weak'];
+        goldenCircleData.level5.forEach(f => { const influenceClass = f.influence; const influenceText = influenceClass === 'strong' ? '强' : (influenceClass === 'normal' ? '中' : '弱'); DOMElements.goldenTableBody.innerHTML += `<tr><td contenteditable="true">${f.name}</td><td contenteditable="true"><span class="role-tag">${f.role}</span></td><td contenteditable="true">${f.job}</td><td contenteditable="true">${f.industry}</td><td contenteditable="true">${f.city}</td><td contenteditable="true">${f.hobby}</td><td contenteditable="true">${f.bday}</td><td><span class="level level-5">命友</span></td><td><span class="influence ${influenceClass}">${influenceText}</span></td><td contenteditable="true">${f.resources}</td><td contenteditable="true">${f.benefactor}</td></tr>`; });
+        goldenCircleData.level4.forEach(f => { const randomInfluence = influences[Math.floor(Math.random() * influences.length)]; const influenceClass = randomInfluence; const influenceText = randomInfluence === 'strong' ? '强' : (randomInfluence === 'normal' ? '中' : '弱'); DOMElements.goldenTableBody.innerHTML += `<tr><td contenteditable="true">${f.name}</td><td contenteditable="true"><span class="role-tag">${f.role}</span></td><td contenteditable="true">${f.job || '待补充'}</td><td contenteditable="true">${f.industry || '待补充'}</td><td contenteditable="true">${f.city}</td><td contenteditable="true">${f.hobby}</td><td contenteditable="true">${f.bday}</td><td><span class="level level-4">密友</span></td><td><span class="influence ${influenceClass}">${influenceText}</span></td><td contenteditable="true">待补充</td><td contenteditable="true">待补充</td></tr>`; });
+        goldenCircleData.level3.forEach(name => { const friendData = state.birthdayMap.get(allFriends.find(f => f.name === name).bday).find(f => f.name === name); DOMElements.goldenTableBody.innerHTML += `<tr><td contenteditable="true">${name}</td><td contenteditable="true"><span class="role-tag">朋友</span></td><td contenteditable="true">待补充</td><td contenteditable="true">待补充</td><td contenteditable="true">待补充</td><td contenteditable="true">待补充</td><td contenteditable="true">${friendData.bday}</td><td><span class="level level-3">好友</span></td><td><span class="influence weak">弱</span></td><td contenteditable="true">待补充</td><td contenteditable="true">待补充</td></tr>`; });
+        
+        state.pastFriends.forEach((f, index) => { const influenceClass = f.influence || 'weak'; const influenceText = influenceClass === 'strong' ? '强' : (influenceClass === 'normal' ? '中' : '弱'); DOMElements.pastTableBody.innerHTML += `<tr data-index="${index}"><td contenteditable="true" data-field="name">${f.name}</td><td contenteditable="true" data-field="role"><span class="role-tag">${f.role}</span></td><td contenteditable="true" data-field="job">${f.job}</td><td contenteditable="true" data-field="industry">${f.industry}</td><td contenteditable="true" data-field="city">${f.city}</td><td contenteditable="true" data-field="hobby">${f.hobby}</td><td contenteditable="true" data-field="bday">${f.bday}</td><td contenteditable="true" data-field="reason">${f.reason}</td><td><span class="influence ${influenceClass}">${influenceText}</span></td><td contenteditable="true" data-field="resources">${f.resources}</td><td contenteditable="true" data-field="benefactor">${f.benefactor}</td></tr>`; });
+    }
+
+    // --- Public Interface for UI Module ---
+    return {
+        init: () => {
+            tooltip.init();
+            DOMElements.heroNameInput.value = state.hero.name;
+            DOMElements.heroBirthdayInput.value = state.hero.birthday;
+            
+            DOMElements.prevYearBtn.addEventListener('click', () => handleNavigation('prev-year'));
+            DOMElements.prevMonthBtn.addEventListener('click', () => handleNavigation('prev-month'));
+            DOMElements.todayBtn.addEventListener('click', () => handleNavigation('today'));
+            DOMElements.nextMonthBtn.addEventListener('click', () => handleNavigation('next-month'));
+            DOMElements.nextYearBtn.addEventListener('click', () => handleNavigation('next-year'));
+            DOMElements.saveHeroBtn.addEventListener('click', saveHeroInfo);
+            DOMElements.jumpToDateBtn.addEventListener('click', handleJumpToDate);
+            [DOMElements.wealthAssetsInput, DOMElements.wealthLiabilitiesInput, DOMElements.wealthCashflowInput].forEach(input => input.addEventListener('change', saveFinancials));
+            DOMElements.accordions.forEach(accordion => { accordion.addEventListener('click', () => { accordion.classList.toggle('active'); const content = accordion.nextElementSibling; content.classList.toggle('active'); }); });
+            DOMElements.addTaskForm.addEventListener('submit', addTask);
+            DOMElements.btnScheduleTasks.addEventListener('click', handleSchedule);
+            DOMElements.addPastFriendBtn.addEventListener('click', () => {
+                state.pastFriends.unshift({ name: '新朋友', role: '待定义', job: '', industry: '', city: '', hobby: '', bday: '', reason: '新添加', influence: 'weak', resources: '', benefactor: '' });
+                storage.set(STORAGE_KEYS.PAST_FRIENDS, state.pastFriends);
+                populateTables();
+                showToast('已添加新行至“似水年华”，请直接编辑。');
+            });
+
+            // Event Delegation for dynamic content
+            DOMElements.calendarBody.addEventListener('input', e => { if (e.target.classList.contains('notes')) { const notes = storage.get(STORAGE_KEYS.NOTES, {}); notes[e.target.dataset.datekey] = e.target.innerHTML; storage.set(STORAGE_KEYS.NOTES, notes); } });
+            DOMElements.taskBacklogContainer.addEventListener('click', e => { const target = e.target.closest('.delete-task-btn'); if (target) { const id = parseFloat(target.dataset.id); state.tasks = state.tasks.filter(t => t.id !== id); storage.set(STORAGE_KEYS.TASKS, state.tasks); renderAll(); }});
+            DOMElements.calendarBody.addEventListener('click', e => { const target = e.target.closest('.delete-reminder-btn'); if (target) { const taskId = parseFloat(target.dataset.id); state.tasks = state.tasks.filter(t => t.id !== taskId); storage.set(STORAGE_KEYS.TASKS, state.tasks); renderAll(); }});
+            DOMElements.searchInput.addEventListener('keyup', e => { const filterText = e.target.value.toLowerCase(); document.querySelectorAll('.contacts-table tbody tr').forEach(row => { row.style.display = row.textContent.toLowerCase().includes(filterText) ? "" : "none"; }); });
+            DOMElements.pastTableBody.addEventListener('blur', (e) => {
+                const target = e.target.closest('td[contenteditable="true"]');
+                if(target) {
+                    const rowIndex = target.parentElement.dataset.index;
+                    const field = target.dataset.field;
+                    if(rowIndex && field && state.pastFriends[rowIndex]) {
+                        state.pastFriends[rowIndex][field] = target.innerText.replace(/<span.*?>.*?<\/span>/g, '').trim(); // Sanitize
+                        storage.set(STORAGE_KEYS.PAST_FRIENDS, state.pastFriends);
+                        showToast('“似水年华”记录已自动保存。');
+                    }
+                }
+            }, true);
+            DOMElements.calendarBody.addEventListener('mouseover', e => { const target = e.target.closest('.reminder-diet'); if (target) tooltip.show(target.dataset.tooltipContent, e); });
+            DOMElements.calendarBody.addEventListener('mouseout', e => { const target = e.target.closest('.reminder-diet'); if (target) tooltip.hide(); });
+            DOMElements.calendarBody.addEventListener('mousemove', e => { const target = e.target.closest('.reminder-diet'); if(target) tooltip.updatePosition(e); });
+
+            populateTables();
+            renderAll();
+        }
+    };
+})();
+
+// --- APP INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    LifePlannerApp.storage.loadAllData();
+    LifePlannerApp.ui.init();
+});
+</script>
+</body>
+</html>
